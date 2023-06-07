@@ -36,8 +36,9 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const database = client.db("BiltzDb");
+        const database = client.db("BlitzDb");
         const usersCollection = database.collection("users");
+        const classesCollection = database.collection("classes");
 
 
 
@@ -45,7 +46,14 @@ async function run() {
 
         app.put('/users', async (req, res) => {
             const user = req.body
+            console.log(user)
             const query = { email: user.email }
+
+            const checkUser = await usersCollection.findOne(query)
+            if (checkUser) {
+                return res.send({ message: 'user already exists' })
+            }
+
             const options = { upsert: true }
             const updateDoc = {
                 $set: user,
@@ -57,18 +65,61 @@ async function run() {
 
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray()
+            // console.log('get user', result)
             res.send(result)
         })
+
 
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email
+            console.log(email)
             const query = { email: email }
+            console.log(query)
+            // const result = await usersCollection.find().toArray() 
             const result = await usersCollection.findOne(query)
-            // console.log(result)
-            res.send(result)
+            console.log('getuser', result)
+            if (result) {
+                res.send(result)
+            }
+            else {
+                res.send({})
+            }
         })
 
 
+
+
+
+
+
+        // admin  
+        app.get('/users/admin/:email', async (req, res) => {
+
+            const email = req.params.email
+
+            // if (req.decoded.email !== email) {
+            //     res.send({ admin: false })
+            // }
+
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+
+            // ToDo 
+            const result = { admin: user?.status === 'admin' }
+            res.send(result)
+
+        })
+
+
+
+
+        // instructor 
+        app.post('/added-class', async (req, res) => {
+            const classes = req.body
+            const result = await classesCollection.insertOne(classes)
+            res.send(result)
+
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
