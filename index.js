@@ -38,7 +38,39 @@ async function run() {
 
         const database = client.db("BlitzDb");
         const usersCollection = database.collection("users");
+
         const classesCollection = database.collection("classes");
+
+
+
+
+
+
+
+
+        //  all Classes 
+
+        app.get('/all-classes', async (req, res) => {
+
+
+            const instructorClasses = await classesCollection.find().toArray()
+
+            res.send(instructorClasses)
+
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -72,12 +104,12 @@ async function run() {
 
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email
-            console.log(email)
+
             const query = { email: email }
-            console.log(query)
+
             // const result = await usersCollection.find().toArray() 
             const result = await usersCollection.findOne(query)
-            console.log('getuser', result)
+
             if (result) {
                 res.send(result)
             }
@@ -118,6 +150,17 @@ async function run() {
             const classes = req.body
             const result = await classesCollection.insertOne(classes)
             res.send(result)
+
+        })
+
+
+        app.get('/instructor-classes/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { instructor_email: email }
+            console.log(query)
+            const instructorClasses = await classesCollection.find(query).toArray()
+            console.log(instructorClasses)
+            res.send(instructorClasses)
 
         })
 
