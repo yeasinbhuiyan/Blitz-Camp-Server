@@ -76,6 +76,7 @@ async function run() {
 
         // users methods 
 
+
         app.put('/users', async (req, res) => {
             const user = req.body
             console.log(user)
@@ -206,6 +207,24 @@ async function run() {
             res.send(result)
 
         })
+
+
+        // Admin petch method 
+
+        app.patch('/user/admin/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    status: 'approve'
+                },
+
+            }
+
+            const result = await classesCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
 
 
         // Send a ping to confirm a successful connection
