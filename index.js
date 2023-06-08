@@ -227,6 +227,25 @@ async function run() {
 
 
 
+        app.patch('/user/admin/denied/:id', async (req, res) => {
+            const id = req.params.id
+            const feedback = req.body.feedback
+            console.log(id, feedback)
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    status: 'denied',
+                    feedback: feedback
+                },
+
+            }
+
+            const result = await classesCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
