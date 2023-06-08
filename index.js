@@ -19,7 +19,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.9xgdj4e.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -102,6 +102,18 @@ async function run() {
         })
 
 
+
+        app.delete('/user/delete/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await usersCollection.deleteOne(query)
+            res.send(result)
+        })
+
+
+
+
+
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email
 
@@ -143,6 +155,22 @@ async function run() {
         })
 
 
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    status: 'admin'
+                },
+            };
+
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
+
+
+
 
 
         // instructor 
@@ -163,6 +191,22 @@ async function run() {
             res.send(instructorClasses)
 
         })
+
+
+        app.patch('/users/instructor/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    status: 'instructor'
+                },
+            };
+
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.send(result)
+
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
