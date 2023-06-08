@@ -40,6 +40,7 @@ async function run() {
         const usersCollection = database.collection("users");
 
         const classesCollection = database.collection("classes");
+        const selectedClassCollection = database.collection("selectedClass");
 
 
 
@@ -169,8 +170,21 @@ async function run() {
             res.send(result)
 
         })
+        // student 
 
+        app.post('/select-class', async (req, res) => {
+            const selectedClass = req.body
 
+            const result = await selectedClassCollection.insertOne(selectedClass)
+            res.send(result)
+
+        })
+        app.get('/select-class/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const result = await selectedClassCollection.find(query).toArray()
+            res.send(result)
+        })
 
 
 
