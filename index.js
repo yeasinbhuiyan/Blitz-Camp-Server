@@ -4,7 +4,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
 require('dotenv').config()
-
+const stripe = require('stripe')(process.env.PAYMENT_SECRECT_KEY)
 
 
 const corsOptions = {
@@ -72,6 +72,7 @@ async function run() {
 
         const classesCollection = database.collection("classes");
         const selectedClassCollection = database.collection("selectedClass");
+        const paymentCollection = database.collection("payments");
 
 
 
@@ -275,6 +276,26 @@ async function run() {
         })
 
 
+        app.get('/enroll/:email', verifyJWT, verifyStudent, async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const result = await paymentCollection.find(query).sort({ date: -1 }).toArray()
+            res.send(result)
+
+
+        })
+
+
+        // all payment history 
+        app.get('/all-payment', verifyJWT, verifyStudent, async (req, res) => {
+
+            const result = await paymentCollection.find().sort({ date: -1 }).toArray()
+            res.send(result)
+
+
+        })
+
+
 
         // instructor 
         app.post('/added-class', verifyJWT, verifyInstructor, async (req, res) => {
@@ -318,10 +339,6 @@ async function run() {
             res.send(result)
         })
 
-
-
-
-
         // Admin petch method 
 
         app.patch('/user/admin/approve/:id', verifyJWT, verifyAdmin, async (req, res) => {
@@ -343,7 +360,7 @@ async function run() {
         app.patch('/user/admin/denied/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id
             const feedback = req.body.feedback
-            console.log(feedback)
+            // console.log(feedback)
             console.log(id, feedback)
             const filter = { _id: new ObjectId(id) }
             const updateDoc = {
@@ -359,6 +376,62 @@ async function run() {
         })
 
 
+
+        // payment 
+
+        app.post('/create-payment-intent', verifyJWT, verifyStudent, async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100)
+            // console.log(amount)
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ["card"],
+            });
+
+            res.send({ clientSecret: paymentIntent.client_secret })
+
+
+        })
+
+        app.post('/payments', verifyJWT, verifyStudent, async (req, res) => {
+            const payment = req.body
+            const insertResult = await paymentCollection.insertOne(payment)
+            const query = { _id: new ObjectId(payment.selectClassId) }
+            const deleteResult = await selectedClassCollection.deleteOne(query)
+
+            res.send({ insertResult, deleteResult })
+
+        })
+
+
+
+        // modified class seat count  
+
+        app.patch('/modified-class/:id', async (req, res) => {
+
+            const id = req.params.id
+            const seats = parseInt(req.body.available_seats) - 1
+            const enroll = parseInt(req.body.enrolled) + 1
+
+            const filter = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: {
+                    available_seats: seats,
+                    enrolled: enroll,
+
+                },
+
+            }
+            const result = await classesCollection.updateOne(filter, updateDoc)
+
+            res.send(result)
+
+
+
+
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
