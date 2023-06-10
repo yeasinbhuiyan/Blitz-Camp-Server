@@ -433,6 +433,39 @@ async function run() {
 
         })
 
+
+
+
+
+
+        app.get('/allInstructors', async (req, res) => {
+            const result = await usersCollection.find().toArray()
+            res.send(result)
+
+        })
+
+
+
+        app.get('/instructor/classes/:email', async (req, res) => {
+            const email = req.params.email
+            const filter = { instructor_email: email }
+            const instructorClasses = await classesCollection.find(filter).toArray()
+
+            res.send(instructorClasses)
+
+        })
+
+        // app.get('/single-instructor/:id', async (req, res) => {
+        //     const id = req.params.id 
+        //     const filter = {_id : new ObjectId(id)}
+        //     const result = await 
+
+        // })
+
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
