@@ -455,14 +455,34 @@ async function run() {
 
         })
 
-        // app.get('/single-instructor/:id', async (req, res) => {
-        //     const id = req.params.id 
-        //     const filter = {_id : new ObjectId(id)}
-        //     const result = await 
+        app.get('/instructor/all-class/:email', async (req, res) => {
+            const email = req.params.email
 
-        // })
+            const query = { instructor_email: email }
+
+            const result = await classesCollection.find(query).toArray()
+            res.send(result)
+
+        })
 
 
+        // popular classes 
+        app.get('/popular-classes', async (req, res) => {
+
+
+            const instructorClasses = await classesCollection.find().sort({ enrolled: -1 }).toArray()
+
+            res.send(instructorClasses)
+
+        })
+
+        // popular instructor
+
+        app.get('/popular-instructor', async (req, res) => {
+            const result = await usersCollection.find().sort({ enrolled: -1 }).toArray()
+            res.send(result)
+
+        })
 
 
 
