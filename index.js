@@ -65,7 +65,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const database = client.db("BlitzDb");
         const usersCollection = database.collection("users");
@@ -333,7 +333,7 @@ async function run() {
 
         })
 
-        app.delete('/instructor-class/delete/:id', verifyJWT, verifyAdmin, async (req, res) => {
+        app.delete('/instructor-class/delete/:id', verifyJWT, verifyInstructor, async (req, res) => {
             const id = req.params.id
             const query = { _id: new ObjectId(id) }
             const result = await classesCollection.deleteOne(query)
