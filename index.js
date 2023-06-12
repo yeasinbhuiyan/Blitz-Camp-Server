@@ -287,13 +287,14 @@ async function run() {
 
 
         // all payment history 
-        app.get('/all-payment', verifyJWT, verifyStudent, async (req, res) => {
-
-            const result = await paymentCollection.find().sort({ date: -1 }).toArray()
-            res.send(result)
+        // app.get('/all-payment', verifyJWT, verifyStudent, async (req, res) => {
 
 
-        })
+        //     const result = await paymentCollection.find().sort({ date: -1 }).toArray()
+        //     res.send(result)
+
+
+        // })
 
 
 
