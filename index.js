@@ -447,6 +447,7 @@ async function run() {
 
 
 
+        // instructor  classes get 
         app.get('/instructor/classes/:email', async (req, res) => {
             const email = req.params.email
             const filter = { instructor_email: email }
@@ -455,6 +456,8 @@ async function run() {
             res.send(instructorClasses)
 
         })
+        
+
 
         app.get('/instructor/all-class/:email', async (req, res) => {
             const email = req.params.email
@@ -484,7 +487,6 @@ async function run() {
             res.send(result)
 
         })
-
 
 
         // Send a ping to confirm a successful connection
