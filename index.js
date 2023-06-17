@@ -325,6 +325,8 @@ async function run() {
             const updateDoc = {
                 $set: {
                     status: 'instructor'
+                   
+
                 },
             };
 
@@ -456,7 +458,46 @@ async function run() {
             res.send(instructorClasses)
 
         })
-        
+
+
+
+
+
+        // but ei api ta kaj kortese naa  
+        app.get('/instructor/:email', async (req, res) => {
+            const email = req.params.email
+            const filter = { email: email }
+            const result = await usersCollection.findOne(filter)
+            // console.log(result)
+            res.send(result)
+        })
+
+
+
+
+
+        // instructor total enroll 
+        // but ei api ta kaj kortese naa  
+        app.patch('/total-enroll/:email', async (req, res) => {
+            const email = req.params.email
+            const body = req.body.totalEnrolled
+            console.log(body)
+
+            const filter = { email: email }
+            const updateDoc = {
+                $set: {
+                    totalEnrolled: parseInt(body + 1)
+
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.send(result)
+        })
+
+
+
+
+
 
 
         app.get('/instructor/all-class/:email', async (req, res) => {
@@ -483,7 +524,7 @@ async function run() {
         // popular instructor
 
         app.get('/popular-instructor', async (req, res) => {
-            const result = await usersCollection.find().sort({ enrolled: -1 }).toArray()
+            const result = await usersCollection.find().toArray()
             res.send(result)
 
         })
